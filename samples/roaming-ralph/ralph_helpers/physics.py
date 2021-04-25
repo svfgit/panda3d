@@ -45,9 +45,7 @@ class RalphPhysics:
     
     def update(self, render):
         # save ralph's initial position so that we can restore it,
-        # in case he falls off the map or runs into something.
-
-        startpos = self.app.scene.ralph.getPos()
+        # in case he falls off the map or runs into something.        
 
         self.cTrav.traverse(render)
         # Adjust ralph's Z coordinate.  If ralph's ray hit terrain,
@@ -60,4 +58,4 @@ class RalphPhysics:
         if len(entries) > 0 and entries[0].getIntoNode().name == "terrain":
             self.app.scene.ralph.setZ(entries[0].getSurfacePoint(render).getZ())
         else:
-            self.app.scene.ralph.setPos(startpos)
+            self.app.scene.ralph.setPos(self.app.startpos)

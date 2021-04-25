@@ -25,8 +25,6 @@ class RalphInput:
         # Game state variables
         self.isMoving = False
 
-
-
         self.app.disableMouse()
     
     # Records the state of the arrow keys
@@ -43,6 +41,7 @@ class RalphInput:
             self.app.camera.setX(self.app.camera, +20 * dt)
     
     def updateRalph(self, dt):
+        self.app.startpos = self.app.scene.ralph.getPos()
         # If a move-key is pressed, move ralph in the specified direction.
 
         if self.keyMap["left"]:
