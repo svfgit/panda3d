@@ -20,9 +20,9 @@ class RalphPhysics:
         self.ralphGroundCol.addSolid(self.ralphGroundRay)
         self.ralphGroundCol.setFromCollideMask(CollideMask.bit(0))
         self.ralphGroundCol.setIntoCollideMask(CollideMask.allOff())
-        self.ralphGroundColNp = self.app.ralph.attachNewNode(self.ralphGroundCol)
-        self.app.ralphGroundHandler = CollisionHandlerQueue()
-        self.cTrav.addCollider(self.ralphGroundColNp, self.app.ralphGroundHandler)
+        self.ralphGroundColNp = self.app.scene.ralph.attachNewNode(self.ralphGroundCol)
+        self.ralphGroundHandler = CollisionHandlerQueue()
+        self.cTrav.addCollider(self.ralphGroundColNp, self.ralphGroundHandler)
 
         self.camGroundRay = CollisionRay()
         self.camGroundRay.setOrigin(0, 0, 9)
@@ -44,4 +44,20 @@ class RalphPhysics:
         self.cTrav.showCollisions(render)
     
     def update(self, render):
+        # save ralph's initial position so that we can restore it,
+        # in case he falls off the map or runs into something.
+
+        startpos = self.app.scene.ralph.getPos()
+
         self.cTrav.traverse(render)
+        # Adjust ralph's Z coordinate.  If ralph's ray hit terrain,
+        # update his Z. If it hit anything else, or didn't hit anything, put
+        # him back where he was last frame.
+
+        entries = list(self.ralphGroundHandler.entries)
+        entries.sort(key=lambda x: x.getSurfacePoint(render).getZ())
+
+        if len(entries) > 0 and entries[0].getIntoNode().name == "terrain":
+            self.app.scene.ralph.setZ(entries[0].getSurfacePoint(render).getZ())
+        else:
+            self.app.scene.ralph.setPos(startpos)

@@ -1,3 +1,5 @@
+
+
 import sys
 
 class RalphInput:
@@ -19,6 +21,13 @@ class RalphInput:
         self.app.accept("arrow_up-up", self.setKey, ["forward", False])
         self.app.accept("a-up", self.setKey, ["cam-left", False])
         self.app.accept("s-up", self.setKey, ["cam-right", False])
+
+        # Game state variables
+        self.isMoving = False
+
+
+
+        self.app.disableMouse()
     
     # Records the state of the arrow keys
     def setKey(self, key, value):
@@ -37,9 +46,26 @@ class RalphInput:
         # If a move-key is pressed, move ralph in the specified direction.
 
         if self.keyMap["left"]:
-            self.app.ralph.setH(self.app.ralph.getH() + 300 * dt)
+            self.app.scene.ralph.setH(self.app.scene.ralph.getH() + 300 * dt)
         if self.keyMap["right"]:
-            self.app.ralph.setH(self.app.ralph.getH() - 300 * dt)
+            self.app.scene.ralph.setH(self.app.scene.ralph.getH() - 300 * dt)
         if self.keyMap["forward"]:
-            self.app.ralph.setY(self.app.ralph, -25 * dt)
+            self.app.scene.ralph.setY(self.app.scene.ralph, -25 * dt)
+        
+        # If ralph is moving, loop the run animation.
+        # If he is standing still, stop the animation.
+
+        if self.keyMap["forward"] or self.keyMap["left"] or self.keyMap["right"]:
+            if self.isMoving is False:
+                self.app.scene.ralph.loop("run")
+                self.isMoving = True
+        else:
+            if self.isMoving:
+                self.app.scene.ralph.stop()
+                self.app.scene.ralph.pose("walk", 5)
+                self.isMoving = False
+    
+    def update(self, dt):
+        self.updateCamera(dt)      
+        self.updateRalph(dt)
     
