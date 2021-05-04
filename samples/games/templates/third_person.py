@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 
-# Author: Ryan Myers
-# Models: Jeff Styers, Reagan Heller
-#
-# Last Updated: 2015-03-13
-#
+# Author: svf
 # This tutorial provides an example of creating a character
 # and having it walk around on uneven terrain, as well
 # as implementing a fully rotatable camera.
@@ -16,9 +12,9 @@ from panda3d.core import Filename, AmbientLight, DirectionalLight
 
 from helpers import ui, physics, scene, controllers, input
 
-# Here is Ralph's friends' AI.  They randomly walk and turn 
-# Looking for someone to play with!
-class RalphsFriend(scene.Entity):
+# Here is an example AI entity for the scene.  
+# It will randomly move around the scene, pausing and turning periodically
+class ExampleAIEntity(scene.Entity):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__( *args, **kwargs)
         self.nextState=None
@@ -43,7 +39,7 @@ class RalphsFriend(scene.Entity):
         self.nextState -= dt
 
 
-class RalphScene(scene.SceneMgr):
+class ThirdPersonScene(scene.SceneMgr):
     def __init__(self, app) -> None:
         super().__init__()
 
@@ -58,57 +54,60 @@ class RalphScene(scene.SceneMgr):
         self.environ = loader.loadModel("models/world")
         self.environ.reparentTo(render)
 
-        # Create the main character, Ralph
-        ralphStartPos = self.environ.find("**/start_point").getPos()        
+        # Find the starting point from within the level media
+        playerStartPos = self.environ.find("**/start_point").getPos()
 
-        self.ralph = self.addEntity(
+        playerModel = "models/ralph"  
+        playerAnimations = {"run": "models/ralph-run", "walk": "models/ralph-walk"}
+
+        self.playerEntity = self.addEntity(
             scene.Entity(
                 app, 
-                media="models/ralph",
-                anims={"run": "models/ralph-run", "walk": "models/ralph-walk"},
-                scale=.2, pos= ralphStartPos + (0, 0, 0.5), physicsType="solid"
+                media=playerModel,
+                anims=playerAnimations,
+                scale=.2, pos=playerStartPos + (0, 0, 0.5), physicsType="solid"
             )
         )
 
-        # Give Ralph some friends!!!
-
+        # Setup some AI entities, just for demonstration purposes.
+        # For now, using the player model and animations
         for i in range(100):
             self.addEntity(
-                RalphsFriend(
+                ExampleAIEntity(
                     app, 
-                    media="models/ralph",
-                    anims={"run": "models/ralph-run", "walk": "models/ralph-walk"},
-                    scale=.2, pos= ralphStartPos + (2, 2, 0.5), physicsType="solid"
+                    media=playerModel,
+                    anims=playerAnimations,
+                    scale=.2, pos=playerStartPos + (2, 2, 0.5), physicsType="solid"
                 )
             )
 
         # Create some lighting
-        self.setupSimpleLighting()
+        self.setupSimpleLighting(ambientLightLevel=.6)
 
-class RoamingRalphDemo(ShowBase):
+class ThirdPersonDemo(ShowBase):
     def __init__(self):
         # Set up the window, camera, etc.
         ShowBase.__init__(self)
 
-        self.physics = physics.RalphPhysics(self)
-        self.scene = RalphScene(self)        
+        self.physics = physics.PhysicsMgr(self)
+        self.scene = ThirdPersonScene(self)        
 
         self.ui = ui.UIMgr(
-            helpTitle = "Panda3D Tutorial: Roaming Ralph (Walking on Uneven Terrain)",
+            helpTitle = "Panda3D Tutorial: Third Person Sample",
             helpBody = """
                 [ESC]: Quit
 
-                [W]: Run Ralph Forward
-                [A]: Rotate Ralph Left
-                [D]: Rotate Ralph Right
+                [W]: Move Player Avatar Forward
+                [A]: Rotate Player Avatar Left
+                [D]: Rotate Player Avatar Right
                 
                 [Q]: Rotate Camera Left
                 [E]: Rotate Camera Right
             """)
-        
+
         self.controller = controllers.ThirdPersonController(
             app=self, 
-            playerNode=self.scene.ralph.actor,
+            playerNode=self.scene.playerEntity.actor,
             inputMgr=input.InputMgr(
                 app=self,
                 toggleKeyConfig = {
@@ -120,7 +119,7 @@ class RoamingRalphDemo(ShowBase):
                     "turnCameraRight":"q"
                 }
             )
-        )        
+        )
 
         taskMgr.add(self.updateTask, "updateTask")
 
@@ -138,5 +137,5 @@ class RoamingRalphDemo(ShowBase):
 
         return task.cont
 
-demo = RoamingRalphDemo()
+demo = ThirdPersonDemo()
 demo.run()

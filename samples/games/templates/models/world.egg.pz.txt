@@ -1,0 +1,10 @@
+#
+# This environment model contains collision meshes.  If you look
+# in the egg file, you will see the following:
+#
+#    <Collide> { Polyset keep descend }
+#
+# This tag causes the following mesh to be converted to a collision
+# mesh -- a mesh which is optimized for collision, not rendering.
+# It also keeps the original mesh, so there are now two copies ---
+# one optimized for rendering, one for collisions.

@@ -2,7 +2,7 @@ from panda3d.core import CollisionTraverser, CollisionNode
 from panda3d.core import CollisionHandlerQueue, CollisionRay
 from panda3d.core import CollideMask
 
-class RalphPhysics:
+class PhysicsMgr:
     def __init__(self, app) -> None:
         self.app=app
         # We will detect the height of the terrain by creating a collision
